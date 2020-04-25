@@ -1,0 +1,9 @@
+once
+	MapHeight 0 do
+		MapWidth 0 do
+			if (I J GetTerrain 1 lt)
+				I J 2000 SetTerrainOverride
+			endif
+		loop
+	loop
+endonce

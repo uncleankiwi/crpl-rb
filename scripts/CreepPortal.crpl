@@ -1,0 +1,177 @@
+$colorID:0
+$Name:"Portal"
+$Size:3
+$StartDelay:0
+$Conduction:0
+$Thresh:1
+
+
+once
+	@awake
+
+    Self "HighlightPortal.crpl" "hasScript" GetScriptVar not if
+        Self "HighlightPortal.crpl" AddScriptToUnit
+    endif
+
+	<-Conduction 0 eq if
+		Self "dot" 0 0 0 255 SetImageColor
+	else
+		<-Conduction 1 eq if
+			Self "dot" 50 50 255 255 SetImageColor
+		else
+			Self "dot" 255 255 255 255 SetImageColor
+		endif
+	endif
+	<-Size 1 eq if
+		Self "main" 0.3 0.3 SetImageScale
+		Self "dot" 0.3 0.3 SetImageScale
+		Self "shape" 0.5 0.5 SetImageScale
+		#Self "letter" 0.3 0.3 SetImageScale
+	else
+		<-Size 2 eq if
+			Self "main" 0.6 0.6 SetImageScale
+			Self "dot" 0.6 0.6 SetImageScale
+			Self "shape" 0.8 0.8 SetImageScale
+			#Self "letter" 0.6 0.6 SetImageScale
+			5 ->Size
+		else
+			<-Size 3 eq if
+				Self "main" 1.1 1.1 SetImageScale
+				Self "dot" 1.1 1.1 SetImageScale
+				Self "shape" 1.3 1.3 SetImageScale
+				#Self "letter" 1.1 1.1 SetImageScale
+				9 ->Size
+			else
+				<-Size 4 eq if
+					Self "main" 1.75 1.75 SetImageScale
+					Self "dot" 1.75 1.75 SetImageScale
+					Self "shape" 2 2 SetImageScale
+					#Self "letter" 1.75 1.75 SetImageScale
+					25 ->Size
+				endif
+			endif
+		endif
+	endif
+	0 ->active
+	<-Conduction <-Thresh mul ->Thresh
+	0 ->parentCore
+endonce
+
+<-active if
+	<-Conduction 1 eq if
+		CurrentCoords GetCreeper <-Thresh lt if 
+			0 ->active
+		endif
+	else
+		<-Conduction -1 eq if
+			CurrentCoords GetCreeper <-Thresh gt if 
+				0 ->active
+			endif
+		endif
+	endif
+else
+	GetGameTimeFrames <-StartDelay gte if
+		<-Conduction 1 eq if
+			CurrentCoords GetCreeper <-Thresh gt if
+				1 ->active
+			endif
+		else
+			<-Conduction -1 eq if
+				CurrentCoords GetCreeper <-Thresh lt if
+					1 ->active
+				endif
+			else
+				1 ->active
+			endif
+		endif
+	endif
+endif
+
+<-parentCore if
+	<-parentCore "PortalGlobal.crpl" "cbActive" GetScriptVar if
+		Self "shape" 255 255 255 255 SetImageColor
+		# Self "letter" 255 255 255 255 SetImageColor
+	else
+		Self "shape" 255 50 50 0 SetImageColor
+		# Self "letter" 0 0 0 0 SetImageColor
+	endif
+
+	HideTraceLog
+
+	<-parentCore "PortalGlobal.crpl" "portalAverage" <-colorID concat GetScriptVar 2 round ->avg
+
+	<-colorIDName
+		" portal
+		" concat
+		if (<-Conduction 1 eq)
+			"Accepts only creeper. Outputs nothing.
+			" concat
+		else if(<-Conduction -1 eq)
+			"Accepts only anti-creeper. Outputs nothing.
+			" concat
+		endif endif
+
+
+		if (<-avg 0 gt)
+			"Transferring " <-avg " creeper." concat concat concat
+		else if (<-avg 0 lt)
+			"Transferring " <-avg abs " anti-creeper." concat concat concat
+		else
+			"Currently not transferring." concat
+		endif endif
+		"
+
+
+		" concat SetPopupText
+
+else
+	"Name" "PortalGlobal" GetCoresWithVar if ->parentCore endif
+endif
+
+
+5 Delay
+
+:awake
+Self CONST_COUNTSFORVICTORY 0 SetUnitAttribute 
+Self CONST_NULLIFIERDAMAGES 0 SetUnitAttribute 
+Self CONST_SUPPORTSDIGITALIS 0 SetUnitAttribute 
+Self CONST_CREATEPZ 0 SetUnitAttribute
+
+Self "main" "Custom" <-colorID 2 add concat SetImage
+<-colorID 5 neq if
+	Self "shape" "Custom" <-colorID 9 add concat SetImage
+endif
+
+if (<-colorID 0 eq)
+	"Red" ->colorIDName
+else if(<-colorID 1 eq)
+	"Green" ->colorIDName
+else if(<-colorID 2 eq)
+	"Violet" ->colorIDName
+else if(<-colorID 3 eq)
+	"Yellow" ->colorIDName
+else if(<-colorID 4 eq)
+	"Blue" ->colorIDName
+else if(<-colorID 5 eq)
+	"Dark" ->colorIDName
+else
+	"Invalid" ->colorIDName
+endif endif endif endif endif endif
+
+
+Self "shape" 0 0 0 0 SetImageColor
+Self "shape" -2 SetImagePositionZ
+Self "dot" "Custom8" SetImage
+Self "dot" -1 SetImagePositionZ
+<-Conduction 0 eq if
+		Self "dot" 0 0 0 255 SetImageColor
+	else
+		<-Conduction 1 eq if
+			Self "dot" 50 50 255 255 SetImageColor
+		else
+			Self "dot" 255 255 255 255 SetImageColor
+		endif
+endif
+# self "letter" "Custom" <-Conduction 15 add concat SetImage
+# Self "letter" 0 0 0 0 SetImageColor
+# Self "letter" -3 SetImagePositionZ

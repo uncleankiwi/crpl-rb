@@ -1,0 +1,61 @@
+#Korok.crpl - Ehekatl
+########################
+
+
+once
+	#accepts ammo, invisible
+	SetImage(Self "main" "NONE")
+
+    Self CONST_TAKEMAPSPACE         FALSE SetUnitAttribute
+    Self CONST_CREATEPZ             FALSE SetUnitAttribute
+    Self CONST_SUPPORTSDIGITALIS    FALSE SetUnitAttribute
+    Self CONST_COUNTSFORVICTORY     FALSE SetUnitAttribute
+    Self CONST_NULLIFIERDAMAGES     FALSE SetUnitAttribute
+    Self CONST_DESTROYMODE 			0 SetUnitAttribute
+
+	Self CONST_CONNECTABLE			TRUE SetUnitAttribute
+	Self CONST_CANREQUESTAMMO  		TRUE SetUnitAttribute
+	Self CONST_MAXAMMO 				10 SetUnitAttribute
+	Self CONST_MAXHEALTH 			10 SetUnitAttribute
+	Self CONST_HEALTH 				10 SetUnitAttribute
+	Self CONST_HEALRATE 			0 SetUnitAttribute
+
+	
+endonce
+
+#when this thing is fully charged
+if(GetUnitAttribute(Self CONST_AMMO) GetUnitAttribute(Self CONST_MAXAMMO) eq)
+	once
+		#create totem here
+		CreateUnit("TOTEM" CurrentCoords)
+
+		#damaged by nullifier
+		Self CONST_CANREQUESTAMMO  		FALSE SetUnitAttribute
+		Self CONST_CONNECTABLE			FALSE SetUnitAttribute
+		Self CONST_NULLIFIERDAMAGES     TRUE SetUnitAttribute
+		Self CONST_NULLIFIERDAMAGEAMT 	0.1  SetUnitAttribute
+		SetPopupText("Yahaha! You found me!")
+	endonce
+endif
+
+
+#when damaged
+if(GetUnitAttribute(Self CONST_HEALTH) GetUnitAttribute(Self CONST_MAXHEALTH) neq)
+	once
+		Self CONST_NULLIFIERDAMAGES     FALSE SetUnitAttribute
+		Self CONST_HEALTH 				GetUnitAttribute(Self CONST_MAXHEALTH) SetUnitAttribute
+
+		if(GetScore 2 mod 0 eq)
+			SetPopupText("Uungh.")
+		else
+			SetPopupText("Ouch.")
+		endif
+	endonce
+endif
+
+
+
+
+
+
+

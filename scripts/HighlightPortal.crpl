@@ -1,0 +1,22 @@
+
+once
+	@awake
+	1 ->hasScript
+endonce
+
+:awake
+	Self "highlight" "Custom9" SetImage
+	Self "highlight" 255 255 255 0 SetImageColor
+
+	Self "CreepPortal.crpl" "Size" GetScriptVar ->unitSize
+	if (<-unitSize 1 eq)
+		1 ->highlightSize
+	else if (<-unitSize 5 eq)
+		1.3 ->highlightSize
+	else if (<-unitSize 9 eq)
+		1.8 ->highlightSize
+	else
+		2.25 ->highlightSize
+	endif endif endif
+
+	Self "highlight" <-highlightSize dup SetImageScale
