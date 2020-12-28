@@ -1,4 +1,4 @@
-$subgridWidth:5
+$n:5
 $interval:15
 $cMax:1000
 $cAdd:20
@@ -6,15 +6,58 @@ $acMax:-1000
 $acAdd:-20
 
 
+#creating n^2 lists of coordinates
 once
-	<-subgridWidth 0 do
-		CreateList "x" I concat -> !
-		CreateList "y" I concat -> !
+	<-n 2 pow ->nsquare
+	0 ->currentPos	
+	#the counter for position in a subgrid.
+	#ranges from 0 to nsquare - 1
+
+	<-n 0 do
+		<-n 0 do
+			#id of the list, ranging from 0 to n^2 - 1
+			I <-n mul J add ->k
+			CreateList "x" <-k concat ->!
+			CreateList "y" <-k concat ->!
+
+			<-J ->x
+			<-I ->y
+
+			while <-x MapWidth lt
+				while <-y MapHeight lt
+					"x" <-k concat <-! <-x AppendToList
+					"y" <-k concat <-! <-y AppendToList
+					<-y <-n add ->y
+				endwhile
+				<-x <-n add ->x
+			endwhile
+			
 
 		
-
+		loop
 	loop
 
-	
+	@shuffleSubgrids
 
 endonce
+
+#============================================
+
+
+GetTimer0 eq0 if
+	"x" <-currentPos concat <-! 
+	
+
+	<-currentPos 1 add ->currentPos
+	<-currentPos <-square gte 0 ->currentPos
+
+	<-interval SetTimer0
+endif
+
+#============================================
+
+:shuffleSubgrids
+
+
+:doRoilingBreeder
+
