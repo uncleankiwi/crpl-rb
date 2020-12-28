@@ -1,0 +1,20 @@
+$subgridWidth:5
+$interval:15
+$cMax:1000
+$cAdd:20
+$acMax:-1000
+$acAdd:-20
+
+
+once
+	<-subgridWidth 0 do
+		CreateList "x" I concat -> !
+		CreateList "y" I concat -> !
+
+		
+
+	loop
+
+	
+
+endonce
