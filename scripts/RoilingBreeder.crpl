@@ -8,6 +8,8 @@ $acAdd:-20
 
 #creating n^2 lists of coordinates
 once
+	ClearTraceLog
+
 	<-n 2 pow ->nsquare
 	0 ->currentPos	
 	#the counter for position in a subgrid.
@@ -20,13 +22,16 @@ once
 			CreateList "x" <-k concat ->!
 			CreateList "y" <-k concat ->!
 
-			<-J ->x
-			<-I ->y
+			J ->x
+			I ->y
 
-			while <-x MapWidth lt
-				while <-y MapHeight lt
-					"x" <-k concat <-! <-x AppendToList
-					"y" <-k concat <-! <-y AppendToList
+			while <-x MapWidth lt repeat
+				while <-y MapHeight lt repeat
+					AppendToList("x" <-k concat <-! <-x)
+					AppendToList("y" <-k concat <-! <-y)
+		
+					<-x <-y Trace2
+
 					<-y <-n add ->y
 				endwhile
 				<-x <-n add ->x
@@ -36,20 +41,26 @@ once
 		
 		loop
 	loop
-
+			
 	@shuffleSubgrids
 
 endonce
 
 #============================================
+ShowTraceLog
 
+if(GetTimer0 eq0)
+	"x" <-currentPos concat <-! GetListCount 0 do
+		GetListElement("x" <-currentPos concat <-! I) ->posX
+		GetListElement("y" <-currentPos concat <-! I) ->posY
+		SetCreeper(<-posX <-posY 0.01)
 
-GetTimer0 eq0 if
-	"x" <-currentPos concat <-! 
-	
+	loop
 
 	<-currentPos 1 add ->currentPos
-	<-currentPos <-square gte 0 ->currentPos
+	if(<-currentPos <-nsquare gte)
+		0 ->currentPos
+	endif
 
 	<-interval SetTimer0
 endif
