@@ -1,0 +1,30 @@
+#This script is optional, along with ACmultitower.crpl. If included, the output of all AC emitters on the map will be increased depending on how many AC multi towers are "active" (submerged in AC). If you omit this script, emitters should simply retain the values you've given them. I personally didn't use this script on any of my CWDig maps other than the introduction but there could be more potential.
+
+$DefaultPower:1
+$Name:"acmultiglobal"
+
+
+once
+@awake
+endonce
+
+#First reset the Power total to our default
+<-DefaultPower ->TotalPower
+#Pick up all ACMulti towers on the map
+"Name" "acmulti" GetCoresWithVar ->unitCount
+#Go through each unit and apply effect if it has reached the AC threshhold
+<-unitCount 0 do
+	->unit
+	#This is a rather beefy "if" check. We get the unit's coordinates, use it for a GetCreper check, then compare it against the unit's Thresh value by pulling the script var. This could probably be done more smoothly if I were to rewrite it now since this was one of my first scripts, but I'm just trying to quickly comment this write now without breaking anything.
+	<-unit CONST_COORDX GetUnitAttribute <-unit CONST_COORDY GetUnitAttribute GetCreeper <-unit "ACmultitower.crpl" "Thresh" GetScriptVar lt if
+		<-TotalPower <-unit "ACmultitower.crpl" "Power" GetScriptVar add ->TotalPower
+	endif
+loop
+
+<-TotalPower 1 max ->TotalPower
+
+
+10 Delay
+
+:Awake
+self "main" "none" SetImage

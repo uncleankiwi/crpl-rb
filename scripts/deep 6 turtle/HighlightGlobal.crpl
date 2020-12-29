@@ -1,0 +1,110 @@
+
+once
+	@awake
+	-1 ->highlight
+
+	6 0 do		
+		CreateList "portalListX" I concat ->!
+		CreateList "portalListY" I concat ->!
+					
+		"colorID" I GetCoresWithVar 0 do	#generate portal lists
+			->unit
+			@getPortalPoints(J)
+			
+		loop
+	loop
+
+endonce
+
+-1 ->cursorOnPortal
+GetMouseCell ->cursorY ->cursorX 
+
+6 0 do								#checking portals for mouse
+	"portalListX" I concat <-! GetListCount 0 do
+		"portalListX" J concat <-! I GetListElement ->unitX
+		"portalListY" J concat <-! I GetListElement ->unitY
+
+		if ((<-unitX <-cursorX eq) (<-unitY <-cursorY eq) and)
+			J ->cursorOnPortal
+			break
+		endif
+	loop
+	if(<-cursorOnPortal -1 neq)
+		break
+	endif
+loop
+
+if (<-cursorOnPortal -1 neq)			#mouse is on some portal
+	if (<-cursorOnPortal <-highlight neq)
+	
+		if (<-highlight -1 neq)			#remove wrong highlights if any
+				@removeHighlight(<-highlight)
+		endif
+	
+	@doHighlight(<-cursorOnPortal)
+	<-cursorOnPortal ->highlight
+
+	endif
+else									#mouse is not on any portal. 
+	@removeHighlight(<-highlight)
+	-1 ->highlight
+endif
+
+#============================================
+:getPortalPoints			#J as arg
+	->index
+
+	<-unit CONST_COORDX GetUnitAttribute ->unitX
+	<-unit CONST_COORDY GetUnitAttribute ->unitY
+	<-unit "CreepPortal.crpl" "Size" GetScriptVar ->portalDimension		#get length of one side of this portal "HighlightPortal.crpl"
+
+	if (<-portalDimension 1 neq)
+		if ((<-portalDimension 5 eq) (<-portalDimension 9 eq)or )
+			3 ->portalDimension
+		else
+			5 ->portalDimension
+		endif
+	endif
+
+	<-portalDimension 0 do							#for each point inside this portal
+		<-portalDimension 0 do
+			#X - ((D - 1)/2) + I
+			"portalListX" <-index concat <-! <-unitX <-portalDimension 1 sub 2 div sub I add AppendToList
+			"portalListY" <-index concat <-! <-unitY <-portalDimension 1 sub 2 div sub J add AppendToList	
+		loop
+	loop
+
+:doHighlight
+	->index
+
+	"colorID" <-index GetCoresWithVar 0 do
+		"highlight" @getColour(<-index) 255 SetImageColor
+	loop 
+
+:removeHighlight
+	->index
+
+	"colorID" <-index GetCoresWithVar 0 do
+		"highlight" 255 255 255 0 SetImageColor
+	loop 
+
+:getColour
+	->colorID
+
+	if (<-colorID 0 eq)			#red
+		255 0 0
+	else if(<-colorID 1 eq)		#green
+		0 255 0
+	else if(<-colorID 2 eq)		#purple
+		255 50 255
+	else if(<-colorID 3 eq)		#yellow
+		255 255 50 
+	else if(<-colorID 4 eq)		#blue
+		50 50 255
+	else						#black
+		50 50 50
+	endif endif endif endif endif
+	
+
+:awake
+	OperateWhilePaused(TRUE)

@@ -1,0 +1,18 @@
+
+once
+	CurrentCoords 0 TRUE GetAllUnitsInRange 0 do		#grabs one totem that's sitting on this core and uses it
+		->unit
+		if(<-unit GetUnitType "TOTEM" eq)
+			<-unit ->totemID
+			break
+		endif
+	loop
+endonce
+
+ShowTraceLog
+<-totemID CONST_AMMO GetUnitAttribute trace
+if (<-totemID CONST_AMMO GetUnitAttribute 3 gt)	#totemID ammo > 3
+
+else
+
+endif

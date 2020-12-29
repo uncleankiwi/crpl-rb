@@ -1,0 +1,117 @@
+# Golem.crpl
+# Created on: 7/27/2013 7:11:10 PM
+# ------------------------------------------
+
+$animationDelay:2
+$moveSpeed:0.8
+$spawnTime:50
+#60
+
+if (<-fullySpawned)
+	if (GetQueuedMoveCount eq0)
+		if (<-mature and (GetCreeper(CurrentX CurrentY) gt (0)))
+			@Kaboom
+			return
+		else
+			@ChooseTarget
+			TRUE ->mature
+		endif
+	endif
+	@Animate
+	@CheckCreeper
+else
+	once
+		# We setup the first image in the animation and also choose a preliminary target so the Golem is pointed in maybe the right direction or close to it.
+		@ChooseTarget
+		@Animate
+		AbortMove
+		PlaySound("Weapons15")
+		CreateEffect(14 CellToPixel(CurrentCoords) -1 1.5 1.5 0.05)
+	endonce
+	<-spawnCount add(1) ->spawnCount
+	SetImageColor(Self "Main" 255 255 255 <-spawnCount asfloat div (<-spawnTime) mul (255))
+	if (<-spawnCount gte (<-spawnTime))
+		TRUE ->fullySpawned
+	endif
+endif	
+
+
+:Kaboom
+	#DamageCreeper(X Y CELL_COUNT_LIMIT RANGE DAMAGE_AMT FOLLOW_TERRAIN)
+	PlaySound("Explosion1")
+	CreateEffect(2 CellToPixel(CurrentCoords) -1.1 1.2 1.2 0.03)
+	DamageCreeper(CurrentX CurrentY 9999 10 100000000 FALSE)
+	SetCreeper(CurrentX CurrentY -250)
+	
+	#Decrement the golemCount on the idol that made us.  "owner" is set by the idol when it makes us.
+	GetScriptVar(<-owner "idol.crpl" "golemCount") ->golemCount
+	<-golemCount sub(1) ->golemCount
+	if (<-golemCount lt (0)) 0 ->golemCount endif
+	SetScriptVar(<-owner "idol.crpl" "golemCount" <-golemCount)
+	
+	Destroy(Self 1)
+
+:CheckCreeper
+	if (GetCreeper(CurrentX CurrentY) gt (0))
+		GetUnitAttribute(Self CONST_HEALTH) ->health
+		<-health sub(0.002) ->health
+		if (<-health lt (0))
+			0 ->health
+			@Kaboom
+			return
+		endif
+		SetUnitAttribute(Self CONST_HEALTH <-health)
+	endif
+
+:Animate
+	if (GetTimer0 eq0)
+		SetImage(Self "Main" concat("custom" <-animFrame))
+		SetImagePositionZ(Self "Main" -0.1)
+		<-animFrame add(1) ->animFrame
+		if (<-animFrame gte (9))
+			0 ->animFrame
+		endif
+		SetTimer0(<-animationDelay)
+	endif
+	
+	GetTerrain(CurrentCoords) ->t
+	1 add(<-t div(20.0)) ->s
+	SetImageScale(Self "Main" <-s <-s)
+	
+	GetCreeper(CurrentCoords) ->c
+	if (<-c gt (0) and (not(<-blue)))
+		SetImageColor(Self "Main" 200 200 255 255)
+		TRUE ->blue
+	else if ( <-c lte (0) and (<-blue) )
+		SetImageColor(Self "Main" 255 255 255 255)
+		FALSE ->blue
+	endif endif
+
+
+:ChooseTarget
+	# 25% of Golems will just choose a random coordinate.  The others will choose a random target that is around the deepest creeper cell on the map
+	if (RandFloat lt (0.25))
+		-1 ->dx -1 ->dy
+	else
+		GetDeepestCreeperCell ->dy ->dx
+	endif
+	if( <-dx lt (0))
+		RandCoords ->targetY ->targetX
+	else
+		RandCoordsInRange(<-dx <-dy 15) ->targetY ->targetX
+	endif
+	
+	QueueMove(<-targetX <-targetY <-moveSpeed)
+	
+	<-targetX sub(CurrentX) ->deltaX
+	<-targetY sub(CurrentY) mul(-1) ->deltaY
+	atan2(<-deltaY <-deltaX) ->angle
+	
+	SetImageRotation(Self "Main" <-angle)
+	
+:Awake
+	SetUnitAttribute(Self CONST_CREATEPZ FALSE)
+	SetUnitAttribute(Self CONST_TAKEMAPSPACE FALSE)
+	SetUnitAttribute(Self CONST_SUPPORTSDIGITALIS FALSE)
+	SetUnitAttribute(Self CONST_NULLIFIERDAMAGES FALSE)
+	SetUnitAttribute(Self CONST_COUNTSFORVICTORY FALSE)

@@ -1,0 +1,84 @@
+# Idol.crpl
+# Created on: 7/27/2013 2:38:08 PM
+# ------------------------------------------
+
+$fieldStrength:50000
+$range:45
+$emitAmt:-500
+$emitInterval:900
+$golemInterval:-1
+
+
+once
+	SetImage(Self "shield" "Custom2_256")
+	SetImageColor(Self "shield" 255 255 255 0)
+	SetImageScale(Self "shield" <-range div(1.5) <-range div(1.5))
+	SetUnitAttribute(Self CONST_AMMO 0)
+	SetUnitAttribute(Self CONST_CONNECTABLE 1)
+	SetUnitAttribute(Self CONST_CANREQUESTAMMO 1)
+	SetUnitAttribute(Self CONST_REQUESTPACKETS 1)
+	SetUnitAttribute(Self CONST_PACKETREQUESTDELAY 3)
+	SetUnitAttribute(Self CONST_NULLIFIERDAMAGES 0)
+	SetUnitAttribute(Self CONST_COUNTSFORVICTORY 0)
+	SetUnitAttribute(Self CONST_SUPPORTSDIGITALIS 0)
+	SetUnitAttribute(Self CONST_MAXAMMO 25)
+
+	"Produces "
+		<-emitAmt abs
+		" anti-creeper every "
+		<-emitInterval 30.00 div 2 Round
+		" second"
+		if (<-emitInterval 30.00 div 2 round 1 gt)
+			"s"
+		endif
+		" when powered.
+
+
+	" concat concat concat concat concat concat concat SetPopupText
+
+endonce
+
+
+GetUnitAttribute(Self CONST_AMMO) ->ammo
+
+if (<-ammo gte(1))
+	if (not(<-enabled))
+		TRUE ->enabled
+		EnableTowerField(<-range <-fieldStrength <-fieldStrength 0 FALSE)
+		SetImage(Self "Main" "Custom1_256")
+		SetImageColor(Self "shield" 255 255 255 255)
+	endif	
+	
+	if (<-emitInterval gte(0))
+		<-ACAccumulator add(1) ->ACAccumulator
+		if (<-ACAccumulator gte(<-emitInterval))
+			SetCreeper(CurrentX CurrentY <-emitAmt)
+			0 ->ACAccumulator
+		endif	
+	endif	
+	
+	if (<-golemInterval gte(0) and (<-golemCount lt (20)))
+		<-golemAccumulator add(1) ->golemAccumulator
+		if (<-golemAccumulator gte(<-golemInterval))
+			CreateUnit("CRPLCORE" CurrentX CurrentY) ->golem
+			AddScriptToUnit(<-golem "golem.crpl")
+			
+			#Set the owener of the Golem to us.  This is so the Golem can decrement the golemCount when it is destroyed
+			SetScriptVar(<-golem "golem.crpl" "owner" Self)
+			
+			#Add one to the golemCount
+			<-golemCount add(1) ->golemCount
+			0 ->golemAccumulator
+		endif	
+	endif
+	
+	<-ammo sub(0.2) ->ammo
+	SetUnitAttribute(Self CONST_AMMO <-ammo)
+else
+	if (<-enabled)
+		FALSE ->enabled
+		DisableTowerField
+		SetImage(Self "Main" "Custom0_256")
+		SetImageColor(Self "shield" 255 255 255 0)
+	endif	
+endif

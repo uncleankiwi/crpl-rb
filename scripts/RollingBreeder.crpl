@@ -1,0 +1,75 @@
+$Interval:30
+$creepAmount:1
+$ACAmount:1
+$creepLimit:29.9
+$ACLimit:49.9
+$Spacing:5
+$worksOnVoid:0
+$clearCreeper:0
+
+
+
+once
+	MapWidth <-Spacing div ->xLoop
+	MapHeight <-Spacing div ->yLoop
+
+	MapWidth <-Spacing mod ->xRem
+	MapHeight <-Spacing mod ->yRem
+	
+	0 ->xOffset
+	0 ->yOffset
+endOnce
+
+if(GetTimer0 eq0)
+	#MapHeight 0 do
+	#	MapWidth 0 do
+	#		I J 0 SetWall
+	#	loop
+	#loop
+
+	<-xLoop 1 add 0 do
+		<-yLoop 1 add 0 do
+			J <-Spacing mul <-xOffset add ->x
+			I <-Spacing mul <-yOffset add ->y
+
+			#<-x <-y 1 SetWall
+			
+
+			
+
+			<-x <-y GetTerrain ->terrain
+			if (((<-terrain 1 lt) (<-worksOnVoid 1 eq) and)(<-terrain 1 gte) or )	#void check
+				<-x <-y getCreeper ->c
+				if (<-c 0 gt)
+					
+					if (<-clearCreeper 0 eq)	#breeder terrain during game
+						if ((<-terrain 6 lt) (<-c 6 <-terrain sub <-creepLimit mul lt) and )	#terrain < 6 and c < (6-terrain) * creepLimit
+							<-x <-y <-creepAmount AddCreeper
+						endif
+					else															#clearing remaining creeper quickly after game is done
+						15 ->Interval
+						<-x <-y -10 SetCreeper
+					endif
+				#else if (c < 0) endif
+				endif
+			endif
+		loop
+	loop
+
+	<-xOffset 1 add ->xOffset
+	if (<-xOffset <-Spacing gte)
+		0 ->xOffset
+		<-yOffset 1 add ->yOffset
+		if (<-yOffset <-Spacing gte)
+			0 ->yOffset
+		endif
+	endif
+	<-Interval SetTimer0
+endif
+
+
+
+
+
+
+

@@ -1,0 +1,36 @@
+$colorID:0
+$Name:"Portal"
+$Size:2
+$StartDelay:0
+$Conduction:0
+$Thresh:1
+
+hidetracelog
+
+once
+	@awake
+	<-Conduction 0 eq if
+		Self "dot" "Custom8" SetImage
+		Self "dot" 0 0 0 255 SetImageColor
+		Self "dot" -1 SetImagePositionZ
+	else
+		<-Conduction 1 eq if
+			Self "dot" "Custom8" SetImage
+			Self "dot" 50 50 255 255 SetImageColor
+			Self "dot" -1 SetImagePositionZ
+		else
+			Self "dot" "Custom8" SetImage
+			Self "dot" 255 255 255 255 SetImageColor
+			Self "dot" -1 SetImagePositionZ
+		endif
+	endif
+endonce
+
+30 Delay
+
+:awake
+Self "main" "Custom" <-colorID 2 add concat SetImage
+Self CONST_COUNTSFORVICTORY 0 SetUnitAttribute 
+Self CONST_NULLIFIERDAMAGES 0 SetUnitAttribute 
+Self CONST_SUPPORTSDIGITALIS 0 SetUnitAttribute 
+Self CONST_CREATEPZ 0 SetUnitAttribute

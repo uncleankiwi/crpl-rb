@@ -1,0 +1,39 @@
+# total-flip3.crpl
+# Created by willbir on: 1/11/2017 3:37:40 PM
+# ------------------------------------------
+
+# once
+# 	#0.02 SetCreeperFlowRate
+# 	212 72 20 20 10 1000 CreateSpore
+# 	212 72 20 124 10 1000 CreateSpore
+# 	212 72 150 20 10 1000 CreateSpore
+# 	212 72 150 124 10 1000 CreateSpore
+# 	212 72 85 72 10 -1000 CreateSpore
+# endOnce
+
+
+GetTimer0 eq0 if
+	#scan 5x5 grid
+	51 0 do
+		28 0 do
+			J 5 mul 2 add ->x
+			I 5 mul 2 add ->y
+			<-x <-y getCreeper ->c
+			
+			#add creeper
+			<-c 1 gt if
+				<-c 200 lt if
+					<-x <-y 10 AddCreeper 
+				endif
+			endif
+			
+			#add ac
+			<-c -1 lt if
+				<-c -100 gt if
+					<-x <-y -10 AddCreeper 
+				endif
+			endif
+		loop
+	loop
+	10 SetTimer0
+endif

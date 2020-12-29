@@ -1,0 +1,142 @@
+# Map.crpl
+# Created on: 4/23/2018 4:26:04 AM
+# ------------------------------------------
+
+once
+	@awake
+
+	CreateList ->listTotemsUID
+	FALSE ->isRiftActive
+	CreateList ->listCoresToRotateUID
+	-1 ->winningGameFrames
+
+	0 0 9999 TRUE GetAllUnitsInRange 0 do
+		->unit
+
+
+		<-unit GetUnitType "TOTEM" eq if
+			<-listTotemsUID <-unit AppendToList
+		endif
+	loop
+endonce
+
+<-isRiftActive not if
+	TRUE ->isRiftActive
+	<-listTotemsUID GetListCount 0 do
+		<-listTotemsUID I GetListElement ->unit
+
+		<-unit CONST_AMMO <-unit CONST_AMMO GetUnitAttribute 0.02 sub SetUnitAttribute
+
+		<-unit CONST_AMMO GetUnitAttribute eq0 if
+			FALSE ->isRiftActive
+		endif
+	loop
+endif
+
+<-isRiftActive if
+	once
+		90 SetTimer0
+		"Misc30" PlaySound
+
+		GetGameTimeFrames ->winningGameFrames
+
+		0 ->centroidX
+		0 ->centroidY
+
+		<-listTotemsUID GetListCount ->centroidPoints
+
+		<-centroidPoints 0 do
+			<-listTotemsUID I GetListElement ->unit
+
+			<-centroidX <-unit CONST_COORDX GetUnitAttribute add ->centroidX
+			<-centroidY <-unit CONST_COORDY GetUnitAttribute add ->centroidY
+		loop
+
+		<-centroidX <-centroidPoints div ->centroidX
+		<-centroidY <-centroidPoints div ->centroidY
+
+		<-centroidPoints 0 do
+			<-listTotemsUID I GetListElement ->unit
+
+			<-unit CONST_COORDX GetUnitAttribute ->originX
+			<-unit CONST_COORDY GetUnitAttribute ->originY
+
+			<-centroidY <-originY sub 		->distanceY
+			<-centroidX <-originX sub 		->distanceX
+
+			<-distanceY <-distanceX atan2 	->radians
+			<-distanceX 0.8 mul 5.0 mul 	->posX
+			<-distanceY 0.8 mul 5.0 mul neg ->posY
+
+			"CRPLCORE" <-originX <-originY CreateUnit ->unitBeam
+			<-unitBeam CONST_TAKEMAPSPACE 		FALSE SetUnitAttribute
+	    	<-unitBeam CONST_CREATEPZ 			FALSE SetUnitAttribute
+	    	<-unitBeam CONST_SUPPORTSDIGITALIS 	FALSE SetUnitAttribute
+	    	<-unitBeam CONST_COUNTSFORVICTORY 	FALSE SetUnitAttribute
+	    	<-unitBeam CONST_NULLIFIERDAMAGES 	FALSE SetUnitAttribute
+
+	    	<-unitBeam "main" "Custom17" SetImage
+	    	<-unitBeam "main" -1.02 SetImagePositionZ
+	    	<-unitBeam "main" 1.5 1.5 SetImageScale
+
+	    	<-unitBeam "beam" "Custom18" SetImage
+			<-unitBeam "beam" 1 SetImageScaleY
+			<-unitBeam "beam" add(<-distanceX dup mul <-distanceY dup mul) sqrt 3 div SetImageScaleX
+			<-unitBeam "beam" <-posX <-posY -1.01 SetImagePosition
+			<-unitBeam "beam" mul(<-radians -1) SetImageRotation
+			<-unitBeam "beam" 255 255 255 255 SetImageColor
+
+			<-listCoresToRotateUID <-unitBeam AppendToList
+		loop
+
+		"CRPLCORE" <-centroidX <-centroidY CreateUnit ->unitRift
+		<-unitRift CONST_TAKEMAPSPACE 		FALSE SetUnitAttribute
+	    <-unitRift CONST_CREATEPZ 			FALSE SetUnitAttribute
+	    <-unitRift CONST_SUPPORTSDIGITALIS 	FALSE SetUnitAttribute
+	    <-unitRift CONST_COUNTSFORVICTORY 	FALSE SetUnitAttribute
+	    <-unitRift CONST_NULLIFIERDAMAGES 	FALSE SetUnitAttribute
+
+	    <-unitRift "main" "Custom0_128" SetImage
+	    <-unitRift "main" -1.03 SetImagePositionZ
+	    <-unitRift "main" 3 3 SetImageScale
+
+	    <-listCoresToRotateUID <-unitRift AppendToList
+	endonce
+
+	<-winningGameFrames SetGameTimeFrames
+
+	<-listCoresToRotateUID GetListCount 0 do
+		<-listCoresToRotateUID I GetListElement ->unit
+
+		<-unit "main" GetImageRotation ->rotation
+		<-rotation 0.1 add ->rotation
+		<-unit "main" <-rotation SetImageRotation
+	loop
+
+	GetTimer0 eq0 if
+		once
+			<-listCoresToRotateUID GetListCount 0 do
+				<-listCoresToRotateUID I GetListElement ->unit
+
+				<-unit 0 Destroy
+			loop
+
+			CreateList ->listCoresToRotateUID
+
+			"CRPLCORE" <-centroidX <-centroidY CreateUnit ->unitRift
+			<-unitRift "Rift.crpl" AddScriptToUnit
+
+		endonce
+	endif
+endif
+
+:awake
+	ClearTraceLog
+	HideTraceLog
+
+	Self CONST_TAKEMAPSPACE 		FALSE SetUnitAttribute
+    Self CONST_CREATEPZ 			FALSE SetUnitAttribute
+    Self CONST_SUPPORTSDIGITALIS 	FALSE SetUnitAttribute
+    Self CONST_COUNTSFORVICTORY 	FALSE SetUnitAttribute
+    Self CONST_NULLIFIERDAMAGES 	FALSE SetUnitAttribute
+    Self "main" "NONE" SetImage

@@ -1,0 +1,10 @@
+once
+	@awake
+endonce
+
+:awake
+  CurrentCoords 0 TRUE GetAllUnitsInRange 0 do
+    ->unit
+    <-unit FALSE SetUnitSelectableOverride
+  loop
+  Self 0 Destroy

@@ -1,0 +1,59 @@
+$Interval:30
+$creepAmount:1
+$ACAmount:1
+$creepLimit:29.9
+$ACLimit:49.9
+$Spacing:5
+$worksOnVoid:0
+$clearCreeper:0
+
+
+
+once
+	MapWidth <-Spacing div 1 add ->xLoop
+	MapHeight <-Spacing div 1 add ->yLoop
+
+#	MapWidth 0 do			#applies initial layer of creep of homogeneous creepLimit height at start
+#		MapHeight 0 do
+#			J I GetTerrain ->terrain
+#			if ((<-terrain 1 gte)(<-terrain 5 lt)and)	#only for terrain from 1 to 4.
+#					J I <-creepLimit SetCreeper
+#			endif
+#		loop
+#	loop
+
+endOnce
+
+if(GetTimer0 eq0)
+	<-xLoop 0 do
+		<-yLoop 0 do
+			J <-Spacing mul 1 add ->x
+			I <-Spacing mul 1 add ->y
+
+			<-x <-y GetTerrain ->terrain
+			if (((<-terrain 1 lt) (<-worksOnVoid 1 eq) and)(<-terrain 1 gte) or )	#void check
+				<-x <-y getCreeper ->c
+				if (<-c 0 gt)
+					
+					if (<-clearCreeper 0 eq)	#breeder terrain during game
+						if ((<-terrain 6 lt) (<-c 6 <-terrain sub <-creepLimit mul lt) and )	#terrain < 6 and c < (6-terrain) * creepLimit
+							<-x <-y <-creepAmount AddCreeper
+						endif
+					else															#clearing remaining creeper quickly after game is done
+						15 ->Interval
+						<-x <-y -100 <-c neg add AddCreeper
+					endif
+				#else if (c < 0) endif
+				endif
+			endif
+		loop
+	loop
+	<-Interval SetTimer0
+endif
+
+
+
+
+
+
+

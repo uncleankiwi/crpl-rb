@@ -1,0 +1,200 @@
+$Name:"PortalGlobal"
+$DarkTimer:100
+$CreepProductionMulti:70
+$ACProductionMulti:70
+
+once
+@awake
+"Red" ->0
+"Green" ->1
+"Violet" ->2
+"Yellow" ->3
+"Blue" ->4
+"Dark" ->5
+0 ->cbActive
+endonce
+
+
+"RightControl" GetKey "LeftControl" GetKey or "R" GetKeyDown and if
+	<-cbActive not ->cbActive
+endif
+
+
+GetTimer1 eq0 if
+	5 0 do
+		"colorID" I GetCoresWithVar ->count <-count if
+			@InitializeColorCycle
+			@GetCreeperLoop
+			<-totalcreep <-totalsize div ->avg
+
+			<-avg "portalAverage" I concat ->!
+
+			@SetCreeperLoop
+		endif
+	loop
+	30 SetTimer1
+endif
+
+GetTimer2 eq0 if
+	6 5 do
+		"colorID" 5 GetCoresWithVar ->count <-count if
+			@InitializeColorCycle
+			@GetCreeperLoop
+			<-totalcreep <-totalsize div ->avg
+			<-avg 0 lt if
+				<-avg neg <-ACProductionMulti mul ->avg
+			else
+				<-avg neg <-CreepProductionMulti mul ->avg
+			endif
+
+			<-avg "portalAverage" I concat ->!
+
+			@SetCreeperLoop
+		endif
+	loop
+	<-DarkTimer SetTimer2
+endif
+
+:awake
+Self "main" "none" SetImage
+Self CONST_COUNTSFORVICTORY 0 SetUnitAttribute 
+Self CONST_NULLIFIERDAMAGES 0 SetUnitAttribute
+Self CONST_TAKEMAPSPACE 0 SetUnitAttribute
+Self CONST_SUPPORTSDIGITALIS 0 SetUnitAttribute
+
+:InitializeColorCycle # requires proper loop index, outputs list and variables to initialize color loop.
+
+CreateList "list" I concat ->! "list" I concat <-! AppendStackToList 
+CreateList "friendly" I concat ->!
+CreateList "neutral" I concat ->!
+CreateList "hostile" I concat ->!
+0.0 ->totalcreep
+0.0 ->totalsize
+
+:GetCreeperLoop # Loop to check creeper level of all portals under a given color.
+<-count 0 do
+	@InitializePortalOperation
+	<-active if
+		<-size 1 eq if
+			<-x <-y GetCreeper ->creep
+		else 
+			<-size 5 eq if
+				@GetCreeper2
+			else
+				<-size 9 eq if 
+					@GetCreeper3
+				else
+					@GetCreeper4
+				endif
+			endif
+		endif
+		<-creep <-totalcreep add ->totalcreep
+		<-totalsize <-size add ->totalsize
+	endif
+loop
+
+:SetCreeperLoop #Loop to set creeper level of all portals under a given color.
+<-count 0 do
+	@InitializePortalOperation
+	<-active if
+		<-size 1 eq if
+			<-x <-y <-avg SetCreeper
+		else 
+			<-size 5 eq if
+				@SetCreeper2
+			else 
+				<-size 9 eq if
+					@SetCreeper3
+				else
+					@SetCreeper4
+				endif
+			endif
+		endif
+	endif
+loop
+
+:InitializePortalOperation # Requires proper loop placement, sets up variables for portal operations.
+
+"list" J concat <-! I GetListElement ->id
+<-id "CreepPortal.crpl" "Size" GetScriptVar ->size
+<-id "CreepPortal.crpl" "active" GetScriptVar ->active
+<-id "CreepPortal.crpl" "Conduction" GetScriptVar ->conduction
+<-id CONST_COORDX GetUnitAttribute ->x
+<-id CONST_COORDY GetUnitAttribute ->y
+
+:GetCreeper2 # requires(x, y)	output(creep total)
+
+<-x <-y GetCreeper 
+<-x 1 add <-y GetCreeper 
+<-x 1 sub <-y GetCreeper 
+<-x <-y 1 add GetCreeper 
+<-x <-y 1 sub GetCreeper 
+add add add add ->creep
+
+:GetCreeper3 # requires(x, y)	output(creep total)
+
+0.0
+<-y 2 add <-y 1 sub do
+	<-x 2 add <-x 1 sub do
+		I J GetCreeper add
+	loop
+loop
+->creep
+
+:GetCreeper4 # requires(x, y)	output(creep total)
+
+0.0
+<-y 3 add <-y 2 sub do
+	<-x 3 add <-x 2 sub do
+		I J GetCreeper add
+	loop
+loop
+->creep
+
+:SetCreeper2 # requires(x, y, avg)
+
+<-x <-y <-avg SetCreeper
+<-x 1 add <-y <-avg SetCreeper
+<-x 1 sub <-y <-avg SetCreeper
+<-x <-y 1 add <-avg SetCreeper
+<-x <-y 1 sub <-avg SetCreeper
+
+:SetCreeper3 # requires(x, y, avg)
+
+<-y 2 add <-y 1 sub do
+	<-x 2 add <-x 1 sub do
+		I J <-avg SetCreeper
+	loop
+loop
+
+:SetCreeper4 # requires(x, y, avg)
+
+<-y 3 add <-y 2 sub do
+	<-x 3 add <-x 2 sub do
+		I J <-avg SetCreeper
+	loop
+loop
+
+# cleartracelog
+# showtracelog
+# <-list5
+# "count: " <-count concat
+# "avg: " <-avg concat
+# "totalcreep: " <-totalcreep concat
+# "testcount: " <-testcount concat
+# tracestack
+
+# I 3 eq if 
+	# cleartracelog
+	# showtracelog
+	# "totalcreep: " <-totalcreep concat
+	# "totalsize: " <-totalsize concat
+	# "x: " <-x concat
+	# "y: " <-y concat
+	# "creep: " <-creep concat
+	# "avg: " <-avg concat
+	# "size: " <-size concat
+	# "tsize: " <-tsize concat
+	# "frame: " GetGameTimeFrames concat
+	# tracestack
+# endif

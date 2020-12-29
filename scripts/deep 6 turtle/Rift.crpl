@@ -1,0 +1,74 @@
+# Rift.crpl
+# Created on: 4/23/2018 9:22:28 PM
+# ------------------------------------------
+
+once
+	@awake
+
+	-1 ->commandNodeUID
+	-1 ->commandNodeX
+	-1 ->commandNodeY
+	FALSE ->finished
+
+	"TotemExplosion" PlaySound
+	"Misc26" PlaySound
+	30 SetTimer0
+endonce
+
+<-finished not GetTimer0 eq0 and if
+	"Misc26" PlaySound
+	30 SetTimer0
+endif
+
+<-finished not if
+
+	0 0 9999 TRUE GetAllUnitsInRange 0 do	#victory stuff moved here.
+		->unit		
+		if(<-unit CONST_COUNTSFORVICTORY GetUnitAttribute)
+			<-unit <-unit CONST_DESTROYMODE GetUnitAttribute Destroy
+		endif
+	loop
+	TRUE ->finished
+
+	"clearCreeper" 0 GetCoresWithVar 0 do		#breeder/flip terrain crossover
+		->unit
+		<-unit "BreederTerrain.crpl" "clearCreeper" 1 SetScriptVar
+		break
+	loop
+endif
+
+Self "main" Self "main" GetImageRotation 0.1 add SetImageRotation
+Self "rift1" Self "rift1" GetImageRotation 0.2 add SetImageRotation
+Self "rift2" Self "rift2" GetImageRotation -0.2194 add SetImageRotation
+Self "rift3" Self "rift3" GetImageRotation 0.3612 add SetImageRotation
+Self "explosion"    Self "explosion" 1 GetImageScaleX 0.5 add   Self "explosion" 1 GetImageScaleY 0.5 add  SetImageScale
+Self "explosion" GetImageColor ->a pop pop pop
+Self "explosion" 255 255 255 <-a 3 sub SetImageColor
+
+:awake
+	ClearTraceLog
+	HideTraceLog
+
+	Self CONST_TAKEMAPSPACE 		FALSE SetUnitAttribute
+    Self CONST_CREATEPZ 			FALSE SetUnitAttribute
+    Self CONST_SUPPORTSDIGITALIS 	FALSE SetUnitAttribute
+    Self CONST_COUNTSFORVICTORY 	FALSE SetUnitAttribute
+    Self CONST_NULLIFIERDAMAGES 	FALSE SetUnitAttribute
+
+    Self "main" "Custom0_128" SetImage
+    Self "rift1" "Custom1_128" SetImage
+    Self "rift2" "Custom1_128" SetImage
+    Self "rift3" "Custom1_128" SetImage
+    Self "explosion" "Custom0_256" SetImage
+
+    Self "main" 3 3 SetImageScale
+    Self "rift1" 4.5 4.5 SetImageScale
+    Self "rift2" 4.5 4.5 SetImageScale
+    Self "rift3" 4.5 4.5 SetImageScale
+    Self "explosion" 0.5 0.5 SetImageScale
+
+    Self "main" -1.03 SetImagePositionZ
+    Self "rift1" -1.04 SetImagePositionZ
+    Self "rift2" -1.05 SetImagePositionZ
+    Self "rift3" -1.06 SetImagePositionZ
+    Self "explosion" -10 SetImagePositionZ

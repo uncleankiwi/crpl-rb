@@ -1,0 +1,53 @@
+# Original script total-flip3.crpl created by willbir on:
+#1/11/2017 3:37:40 PM
+# ------------------------------------------
+
+$Interval:5
+$creepAmount:0.03
+$ACAmount:1
+$creepLimit:49.9
+$ACLimit:49.9
+$Spacing:5
+$worksOnVoid:0
+$clearCreeper:0
+
+
+
+once
+
+
+endOnce
+
+if(GetTimer0 eq0)
+	MapWidth 0 do
+		MapHeight 0 do
+			J I GetTerrain ->terrain
+			if (((<-terrain 1 lt) (<-worksOnVoid 1 eq) and)(<-terrain 1 gte) or )	#void check
+				J I getCreeper ->c
+				if (<-c 0 gt)
+					
+					if (<-clearCreeper 0 eq)	#breeder terrain during game
+						if ((<-terrain 5 lt) (5 <-terrain sub <-creepLimit mul) and )	#terrain < 5 and c < (5-terrain) * creepLimit
+							ClearTraceLog
+							ShowTraceLog
+							"addinggs" trace
+							J I <-creepAmount AddCreeper
+						endif
+					else															#clearing remaining creeper quickly after game is done
+						1 ->Interval
+						J I -1 AddCreeper
+					endif
+				#else if (c < 0) endif
+				endif
+			endif
+		loop
+	loop
+	<-Interval SetTimer0
+endif
+
+
+
+
+
+
+

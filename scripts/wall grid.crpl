@@ -1,0 +1,46 @@
+# total-flip3.crpl
+# Created by willbir on: 1/11/2017 3:37:40 PM
+# ------------------------------------------
+
+$Spacing:5
+$clearWallsFirst:0
+$wallsInVoid:1
+$wallsOnTerrain:1
+
+#once
+
+#remove walls everywhere if clearWallsFirst is on
+if (<-clearWallsFirst 1 eq)
+	MapHeight 0 do
+		MapWidth 0 do
+			I J 0 SetWall
+		loop
+	loop
+endif
+
+
+	#for each plot in the map
+	#place a wall on the terrain if wallsOnTerrain is on, or
+	#place a wall on the void if wallsInVoid is on
+
+MapWidth <-Spacing div 1 add ->xLoop
+MapHeight <-Spacing div 1 add ->yLoop
+
+	<-xLoop 0 do
+		<-yLoop 0 do
+			J <-Spacing mul 1 add ->x
+			I <-Spacing mul 1 add ->y
+
+			if ((<-x <-y GetTerrain 0 gt) (<-wallsOnTerrain 1 eq) and)
+				<-x <-y 1 SetWall
+			endif
+
+			if ((<-x <-y GetTerrain 1 lt) (<-wallsInVoid 1 eq) and)
+				<-x <-y 1 SetWall
+			endif
+
+		loop
+	loop
+	
+#endOnce
+30 delay

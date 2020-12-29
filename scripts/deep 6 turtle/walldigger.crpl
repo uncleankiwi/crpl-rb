@@ -1,0 +1,81 @@
+#Modified version of Cornucanis' script.
+
+#The timer determines how often this script runs. I usually leave it at a value of 30 (once per second) when editing and testing the map, then lower it to 5 or 10 when publishing the map. Terrain scripts are very resource intensive so you don't want to run it every frame. Keeping the value high means any time you modify terrain with terps it will be slow to update the override, but keeping it high will also greatly help performance. That's why I keep it set high when I'm testing the map but lower it before publishing to make it feel "smoother".
+$Timer:30
+#The multi value determines the "strength" of the terrain on the map. The default value of 10 means terrain will be 10 times as powerful, so creeper must be 10 levels deep to move up to the next terrain level. I experimented with high values such as a 100 multi, but it causes issues with void overflow. This can be averted with terrain overrides on void, but then you run into issues with handling digi on void so I opted to keep the multis in a range that doesn't necessitate creepr in the 500+ range.
+$Multi:10
+#FlowRL and FlowUD change the global creeper flow rate. 
+$FlowRL:1.0
+$FlowUD:1.0
+#DigiFlowRL and DigiFlowUD change the global creeper flow rate when on digitalis.
+$DigiFlowRL:1.0
+$DigiFlowUD:1.0
+#Evaporation modifies the global creeper evaporation rate
+$Evaporation:1000
+#Enable the RefreshTerrain option to reset all terrain overrides. This is important to do before finalizing your map in case there are remnant overrides from cells that you've since changed the terrain for.
+$RefreshTerrain:0
+#Enable freeze before resizing a map to prevent a game breaking glitch that will ruin your map upon resizing. You've been warned!
+$Freeze:0
+
+
+<-Freeze if
+	once
+		MapHeight 0 do
+			MapWidth 0 do
+				I J -1 SetTerrainOverride
+			loop
+		loop
+	endonce
+else
+	once
+	@awake
+	#Make sure the creeper never exceeds 2000 since that's the override we're using for height 10 terrain.
+	2000000000 SetCreeperMax 2000000000 SetAntiCreeperMax
+
+	MapHeight 0 do
+		MapWidth 0 do
+			I J GetTerrain 1 lt if
+				I J 2000 SetTerrainOverride
+			else
+				#If the terrain is not height 10, we will reset the terrain override if RefreshTerrain is enabled.
+				<-RefreshTerrain if
+					I J -1 SetTerrainOverride
+					
+				endif
+			endif
+		loop
+	loop
+
+	0 ->RefreshTerrain
+
+	<-FlowRL SetCreeperFlowRateRL
+	<-FlowUD SetCreeperFlowRateUD
+	<-DigiFlowRL SetCreeperFlowRateOnDigitalisRL
+	<-DigiFlowUD SetCreeperFlowRateOnDigitalisUD 
+	<-Evaporation SetCreeperEvaporationLimit
+
+
+	# This checks all tiles on the map and multiplies the terrain by your designated multi (10 by default) to get a resulting terrain override
+	MapHeight 0 do
+		MapWidth 0 do	
+
+			if (I J GetTerrain 0 gt)
+
+				I J dup2 getTerrain <-Multi mul SetTerrainOverride
+
+			endif
+		loop
+	loop
+
+	endonce
+
+endif
+<-Timer delay
+
+
+:awake
+Self "main" "none" SetImage
+Self CONST_COUNTSFORVICTORY 0 SetUnitAttribute 
+Self CONST_NULLIFIERDAMAGES 0 SetUnitAttribute
+Self CONST_TAKEMAPSPACE 0 SetUnitAttribute
+Self CONST_SUPPORTSDIGITALIS 0 SetUnitAttribute

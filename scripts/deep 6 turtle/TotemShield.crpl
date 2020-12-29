@@ -1,0 +1,37 @@
+
+$fieldStrength:50000
+$range:10
+
+once
+	SetImage(Self "shield" "Custom1_256")
+	SetImageColor(Self "shield" 255 255 255 0)
+	SetImageScale(Self "shield" <-range div(1.5) <-range div(1.5))
+	SetUnitAttribute(Self CONST_AMMO 0)
+	SetUnitAttribute(Self CONST_CONNECTABLE 0)
+	SetUnitAttribute(Self CONST_CANREQUESTAMMO 0)
+	SetUnitAttribute(Self CONST_REQUESTPACKETS 0)
+	SetUnitAttribute(Self CONST_PACKETREQUESTDELAY 3)
+	SetUnitAttribute(Self CONST_NULLIFIERDAMAGES 0)
+	SetUnitAttribute(Self CONST_COUNTSFORVICTORY 0)
+	SetUnitAttribute(Self CONST_SUPPORTSDIGITALIS 0)
+	SetUnitAttribute(Self CONST_MAXAMMO 0)
+	SetUnitAttribute(Self CONST_TAKEMAPSPACE 0)
+    SetUnitAttribute(Self CONST_CREATEPZ 0)
+    Self "main" "NONE" SetImage
+
+	CurrentCoords 0 TRUE GetAllUnitsInRange 0 do		#grabs one totem that's sitting on this core and uses it
+		->unit
+		if(<-unit GetUnitType "TOTEM" eq)
+			<-unit ->totemID
+			break
+		endif
+	loop
+endonce
+
+if (<-totemID CONST_AMMO GetUnitAttribute 10 gt)	#totemID ammo > 10
+	EnableTowerField(<-range <-fieldStrength <-fieldStrength 0 FALSE)
+	SetImageColor(Self "shield" 128 128 255 255)
+else
+	DisableTowerField
+	SetImageColor(Self "shield" 128 128 255 0)
+endif
