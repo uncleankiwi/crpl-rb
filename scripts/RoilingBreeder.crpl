@@ -55,19 +55,19 @@ endif
 :shuffleSubgrids
 	GetListCount(<-x1) ->subgridsCount	#number of subgrids on the map
 
-	####
-	<-nsquare 0 do
-		Trace3("list" "x" I concat GetListCount("x" I concat <-!))
-	loop
+	#<-nsquare 0 do
+	#	Trace3("list" "x" I concat GetListCount("x" I concat <-!))
+	#loop
 	
 	#making sure that all lists are of the same size by filling in with (-1,-1)
 	<-nsquare 0 do
+		Trace4("list" GetListCount("x" I concat <-!) <-subgridsCount I)
 		while (GetListCount("x" I concat <-!) <-subgridsCount lt) repeat
-			AppendToList("x" <-k concat <-! -1)
+			AppendToList("x" I concat <-! -1)
 		endwhile
 
-		while (GetListCount("x" I concat <-!) <-subgridsCount lt) repeat
-			AppendToList("x" <-k concat <-! -1)
+		while (GetListCount("y" I concat <-!) <-subgridsCount lt) repeat
+			AppendToList("y" I concat <-! -1)
 		endwhile
 	loop
 
