@@ -1,0 +1,24 @@
+once
+	ClearTraceLog
+	ShowTraceLog
+
+	"dim" MapWidth MapHeight Trace3
+	
+
+
+	3 ->x
+	1 ->y
+	while <-x 22 lt repeat
+		while <-y 22 lt repeat
+			<-x <-y Trace2
+			<-y 5 add ->y
+		endwhile
+		
+		"x" <-x Trace
+		<-x 5 add ->x
+	endwhile
+
+
+
+
+endonce

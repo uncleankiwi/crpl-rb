@@ -9,36 +9,31 @@ $acAdd:-20
 #creating n^2 lists of coordinates
 once
 	ClearTraceLog
+	HideTraceLog
 
 	<-n 2 pow ->nsquare
 	0 ->currentPos	
-	#the counter for position in a subgrid.
-	#ranges from 0 to nsquare - 1
+	#currentPos: the counter for position in a subgrid. ranges from 0 to nsquare - 1
 
 	<-n 0 do
 		<-n 0 do
-			#id of the list, ranging from 0 to n^2 - 1
+			#k: id of the list, ranging from 0 to n^2 - 1
 			I <-n mul J add ->k
 			CreateList "x" <-k concat ->!
 			CreateList "y" <-k concat ->!
 
 			J ->x
-			I ->y
-
 			while <-x MapWidth lt repeat
+				I ->y
 				while <-y MapHeight lt repeat
 					AppendToList("x" <-k concat <-! <-x)
 					AppendToList("y" <-k concat <-! <-y)
-		
-					<-x <-y Trace2
 
 					<-y <-n add ->y
 				endwhile
 				<-x <-n add ->x
 			endwhile
 			
-
-		
 		loop
 	loop
 			
@@ -46,29 +41,51 @@ once
 
 endonce
 
-#============================================
-ShowTraceLog
+#=====================meow=======================
 
 if(GetTimer0 eq0)
+	@doRoilingBreeder
+
+	<-interval SetTimer0
+endif
+
+#=====================meow=======================
+
+:shuffleSubgrids
+	GetListCount(<-x0) ->subgridsCount	#number of subgrids on the map
+
+	#making sure that all lists are of the same size by filling in with (-1,-1)
+	<-nsquare 0 do
+		while (GetListCount("x" I concat <-!) <-subgridsCount lt) repeat
+			AppendToList("x" <-k concat <-! -1)
+		endwhile
+
+		while (GetListCount("x" I concat <-!) <-subgridsCount lt) repeat
+			AppendToList("x" <-k concat <-! -1)
+		endwhile
+	loop
+
+
+:doRoilingBreeder
+	#testing stuff. to disable.
+	#MapWidth 0 do
+	#	MapHeight 0 do
+	#		SetWall(J I 0)
+	#	loop
+	#loop
+
+
 	"x" <-currentPos concat <-! GetListCount 0 do
 		GetListElement("x" <-currentPos concat <-! I) ->posX
 		GetListElement("y" <-currentPos concat <-! I) ->posY
-		SetCreeper(<-posX <-posY 0.01)
-
+		
+		if((<-posX -1 gt) (<-posY -1 gt) and)
+			SetCreeper(<-posX <-posY 0.01)
+			#SetWall(<-posX <-posY 1)
+		endif
 	loop
 
 	<-currentPos 1 add ->currentPos
 	if(<-currentPos <-nsquare gte)
 		0 ->currentPos
 	endif
-
-	<-interval SetTimer0
-endif
-
-#============================================
-
-:shuffleSubgrids
-
-
-:doRoilingBreeder
-
