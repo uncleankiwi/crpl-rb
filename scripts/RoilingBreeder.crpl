@@ -53,8 +53,13 @@ endif
 #=====================meow=======================
 
 :shuffleSubgrids
-	GetListCount(<-x0) ->subgridsCount	#number of subgrids on the map
+	GetListCount(<-x1) ->subgridsCount	#number of subgrids on the map
 
+	####
+	<-nsquare 0 do
+		Trace3("list" "x" I concat GetListCount("x" I concat <-!))
+	loop
+	
 	#making sure that all lists are of the same size by filling in with (-1,-1)
 	<-nsquare 0 do
 		while (GetListCount("x" I concat <-!) <-subgridsCount lt) repeat
@@ -70,27 +75,32 @@ endif
 	<-subgridsCount 0 do
 		<-nsquare 0 do
 			RandInt(0 <-nsquare) ->randPos
-			
+			GetListElement("x" I concat <-! J) ->tempX
+			GetListElement("y" I concat <-! J) ->tempY
+			SetListElement("x" I concat <-! J GetListElement("x" <-randPos concat <-! J))
+			SetListElement("y" I concat <-! J GetListElement("y" <-randPos concat <-! J))
+			SetListElement("x" <-randPos concat <-! J <-tempX)
+			SetListElement("y" <-randPos concat <-! J <-tempY)
 		loop
 	loop
 
 
 :doRoilingBreeder
 	#testing stuff. to disable.
-	#MapWidth 0 do
-	#	MapHeight 0 do
-	#		SetWall(J I 0)
-	#	loop
-	#loop
+	MapWidth 0 do
+		MapHeight 0 do
+			SetWall(J I 0)
+		loop
+	loop
 
 
-	"x" <-currentPos concat <-! GetListCount 0 do
+	GetListCount("x" <-currentPos concat <-!) 0 do
 		GetListElement("x" <-currentPos concat <-! I) ->posX
 		GetListElement("y" <-currentPos concat <-! I) ->posY
 		
-		if((<-posX -1 gt) (<-posY -1 gt) and)
-			SetCreeper(<-posX <-posY 0.01)
-			#SetWall(<-posX <-posY 1)
+		if((<-posX -1 gt) (<-posY -1 gt) or)
+			#SetCreeper(<-posX <-posY 0.01)
+			SetWall(<-posX <-posY 1)
 		endif
 	loop
 
