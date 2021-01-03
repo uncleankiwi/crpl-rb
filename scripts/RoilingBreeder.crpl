@@ -9,7 +9,8 @@ $acAdd:-20
 #creating n^2 lists of coordinates
 once
 	ClearTraceLog
-	HideTraceLog
+	#HideTraceLog
+	ShowTraceLog
 
 	<-n 2 pow ->nsquare
 	0 ->currentPos	
@@ -19,8 +20,8 @@ once
 		<-n 0 do
 			#k: id of the list, ranging from 0 to n^2 - 1
 			I <-n mul J add ->k
-			CreateList "x" <-k concat ->!
-			CreateList "y" <-k concat ->!
+			CreateList("x" <-k concat ->!)
+			CreateList("y" <-k concat ->!)
 
 			J ->x
 			while <-x MapWidth lt repeat
@@ -63,6 +64,14 @@ endif
 		while (GetListCount("x" I concat <-!) <-subgridsCount lt) repeat
 			AppendToList("x" <-k concat <-! -1)
 		endwhile
+	loop
+
+	#shuffle
+	<-subgridsCount 0 do
+		<-nsquare 0 do
+			RandInt(0 <-nsquare) ->randPos
+			
+		loop
 	loop
 
 
