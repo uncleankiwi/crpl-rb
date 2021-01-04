@@ -15,6 +15,23 @@ once
 	#HideTraceLog
 	#ShowTraceLog
 
+	SetImage(Self "main" "NONE")
+
+    Self CONST_TAKEMAPSPACE         FALSE SetUnitAttribute
+    Self CONST_CREATEPZ             FALSE SetUnitAttribute
+    Self CONST_SUPPORTSDIGITALIS    FALSE SetUnitAttribute
+    Self CONST_COUNTSFORVICTORY     FALSE SetUnitAttribute
+    Self CONST_NULLIFIERDAMAGES     FALSE SetUnitAttribute
+    Self CONST_DESTROYMODE 			0 SetUnitAttribute
+
+	Self CONST_CONNECTABLE			TRUE SetUnitAttribute
+	Self CONST_CANREQUESTAMMO  		TRUE SetUnitAttribute
+	Self CONST_MAXAMMO 				10 SetUnitAttribute
+	Self CONST_MAXHEALTH 			10 SetUnitAttribute
+	Self CONST_HEALTH 				10 SetUnitAttribute
+	Self CONST_HEALRATE 			0 SetUnitAttribute
+
+
 	<-n 2 pow ->nsquare
 	0 ->currentPos	
 	#currentPos: the counter for position in a subgrid. ranges from 0 to nsquare - 1
@@ -105,7 +122,9 @@ endif
 	endif
 
 :setCreeper
-	->pX ->pY	###to reverse?
+	#->pX ->pY	###to reverse?
+	->pY ->pX
+	0 ->newCreep
 	GetCreeper(<-pX <-pY) ->oldCreep
 	if(<-oldCreep 0 eq)
 		#do nothing
