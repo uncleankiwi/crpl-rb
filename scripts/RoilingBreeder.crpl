@@ -5,12 +5,15 @@ $cAdd:20
 $acMax:-1000
 $acAdd:-20
 
+#x0 empty +++ 1 frame empty
+#retrieving from empty stack in shuffle
+#0,0? sticks
 
 #creating n^2 lists of coordinates
 once
 	ClearTraceLog
-	#HideTraceLog
-	ShowTraceLog
+	HideTraceLog	###
+	#ShowTraceLog	###
 
 	<-n 2 pow ->nsquare
 	0 ->currentPos	
@@ -20,8 +23,8 @@ once
 		<-n 0 do
 			#k: id of the list, ranging from 0 to n^2 - 1
 			I <-n mul J add ->k
-			CreateList("x" <-k concat ->!)
-			CreateList("y" <-k concat ->!)
+			CreateList "x" <-k concat ->! 
+			CreateList "y" <-k concat ->!
 
 			J ->x
 			while <-x MapWidth lt repeat
@@ -37,7 +40,8 @@ once
 			
 		loop
 	loop
-			
+	
+	#@listLengths
 	@shuffleSubgrids
 
 endonce
@@ -53,23 +57,20 @@ endif
 #=====================meow=======================
 
 :shuffleSubgrids
-	GetListCount(<-x1) ->subgridsCount	#number of subgrids on the map
-
-	#<-nsquare 0 do
-	#	Trace3("list" "x" I concat GetListCount("x" I concat <-!))
-	#loop
+	GetListCount(<-x0) ->subgridsCount	#number of subgrids on the map
 	
 	#making sure that all lists are of the same size by filling in with (-1,-1)
 	<-nsquare 0 do
-		Trace4("list" GetListCount("x" I concat <-!) <-subgridsCount I)
-		while (GetListCount("x" I concat <-!) <-subgridsCount lt) repeat
+		while GetListCount("x" I concat <-!) <-subgridsCount lt repeat
 			AppendToList("x" I concat <-! -1)
 		endwhile
 
-		while (GetListCount("y" I concat <-!) <-subgridsCount lt) repeat
+		while GetListCount("y" I concat <-!) <-subgridsCount lt repeat
 			AppendToList("y" I concat <-! -1)
 		endwhile
 	loop
+
+	#@listLengths
 
 	#shuffle
 	<-subgridsCount 0 do
@@ -86,13 +87,7 @@ endif
 
 
 :doRoilingBreeder
-	#testing stuff. to disable.
-	MapWidth 0 do
-		MapHeight 0 do
-			SetWall(J I 0)
-		loop
-	loop
-
+	@clearWalls	###
 
 	GetListCount("x" <-currentPos concat <-!) 0 do
 		GetListElement("x" <-currentPos concat <-! I) ->posX
@@ -100,7 +95,7 @@ endif
 		
 		if((<-posX -1 gt) (<-posY -1 gt) or)
 			#SetCreeper(<-posX <-posY 0.01)
-			SetWall(<-posX <-posY 1)
+			SetWall(<-posX <-posY 1)	###
 		endif
 	loop
 
@@ -108,3 +103,18 @@ endif
 	if(<-currentPos <-nsquare gte)
 		0 ->currentPos
 	endif
+
+
+#debug
+:listLengths
+	<-nsquare 0 do
+		Trace3("list" "x" I concat GetListCount("x" I concat <-!))
+	loop
+
+#debug
+:clearWalls
+	MapWidth 0 do
+		MapHeight 0 do
+			SetWall(J I 0)
+		loop
+	loop
