@@ -11,9 +11,9 @@ $acAdd:-20
 
 #creating n^2 lists of coordinates
 once
-	ClearTraceLog
-	HideTraceLog	###
-	#ShowTraceLog	###
+	#ClearTraceLog
+	#HideTraceLog
+	#ShowTraceLog
 
 	<-n 2 pow ->nsquare
 	0 ->currentPos	
@@ -87,15 +87,15 @@ endif
 
 
 :doRoilingBreeder
-	@clearWalls	###
+	#@clearWalls
 
 	GetListCount("x" <-currentPos concat <-!) 0 do
 		GetListElement("x" <-currentPos concat <-! I) ->posX
 		GetListElement("y" <-currentPos concat <-! I) ->posY
 		
 		if((<-posX -1 gt) (<-posY -1 gt) or)
-			#SetCreeper(<-posX <-posY 0.01)
-			SetWall(<-posX <-posY 1)	###
+			@setCreeper(<-posX <-posY)
+			#SetWall(<-posX <-posY 1)
 		endif
 	loop
 
@@ -104,6 +104,17 @@ endif
 		0 ->currentPos
 	endif
 
+:setCreeper
+	->pX ->pY	###to reverse?
+	GetCreeper(<-pX <-pY) ->oldCreep
+	if(<-oldCreep 0 eq)
+		#do nothing
+	else if(<-oldCreep 0 gt)
+		<-oldCreep <-cAdd add <-cMax min ->newCreep
+	else
+		<-oldCreep <-acAdd add <-acMax max ->newCreep
+	endif endif
+	SetCreeper(<-pX <-pY <-newCreep)
 
 #debug
 :listLengths
